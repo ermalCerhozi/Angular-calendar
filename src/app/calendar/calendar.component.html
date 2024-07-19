@@ -1,0 +1,141 @@
+<div class="action-buttons">
+  <div class="col-md-4">
+    <button
+      mat-stroked-button
+      mwlCalendarPreviousView
+      [view]="view"
+      [(viewDate)]="viewDate"
+      (viewDateChange)="activeDayIsOpen = false">
+      Previous
+    </button>
+    <button
+      mat-stroked-button
+      mwlCalendarToday
+      [(viewDate)]="viewDate">
+      Today
+    </button>
+    <button
+      mat-stroked-button
+      mwlCalendarNextView
+      [view]="view"
+      [(viewDate)]="viewDate"
+      (viewDateChange)="activeDayIsOpen = false">
+      Next
+    </button>
+  </div>
+
+  <div class="col-md-4">
+    <h3>{{ viewDate | date }}</h3>
+  </div>
+
+  <div class="col-md-4">
+    <mat-button-toggle-group name="viewSelector" aria-label="View Selector">
+      <mat-button-toggle value="Month" mat-stroked-button (click)="view = CalendarView.Month" [class.active]="view === CalendarView.Month">Month</mat-button-toggle>
+      <mat-button-toggle value="Week" mat-stroked-button (click)="view = CalendarView.Week" [class.active]="view === CalendarView.Week">Week</mat-button-toggle>
+      <mat-button-toggle value="Day" mat-stroked-button (click)="view = CalendarView.Day" [class.active]="view === CalendarView.Day">Day</mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+</div>
+
+<div [ngSwitch]="view">
+  <mwl-calendar-month-view
+    *ngSwitchCase="CalendarView.Month"
+    [viewDate]="viewDate"
+    [events]="events"
+    [refresh]="refresh"
+    [activeDayIsOpen]="activeDayIsOpen"
+    (dayClicked)="dayClicked($event.day)"
+    (eventClicked)="previewEvent($event.event)"
+    (eventTimesChanged)="eventTimesChanged($event)">
+  </mwl-calendar-month-view>
+  <mwl-calendar-week-view
+    *ngSwitchCase="CalendarView.Week"
+    [viewDate]="viewDate"
+    [events]="events"
+    [refresh]="refresh"
+    (eventClicked)="previewEvent($event.event)"
+    (eventTimesChanged)="eventTimesChanged($event)">
+  </mwl-calendar-week-view>
+  <mwl-calendar-day-view
+    *ngSwitchCase="CalendarView.Day"
+    [viewDate]="viewDate"
+    [events]="events"
+    [refresh]="refresh"
+    (eventClicked)="previewEvent($event.event)"
+    (eventTimesChanged)="eventTimesChanged($event)">
+  </mwl-calendar-day-view>
+</div>
+
+<div style="padding: 50px 10px;">
+  <button
+    mat-flat-button
+    (click)="createUpdateEvent()">
+    Add new Event
+  </button>
+</div>
+
+<mat-table [dataSource]="events" #table>
+
+  <ng-container matColumnDef="description">
+    <mat-header-cell *matHeaderCellDef> Description </mat-header-cell>
+    <mat-cell *matCellDef="let event; let i = index">
+      <mat-form-field>
+        <input matInput [(ngModel)]="event.title" (keyup)="refresh.next({})" disabled>
+      </mat-form-field>
+    </mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="status">
+    <mat-header-cell *matHeaderCellDef> Status </mat-header-cell>
+    <mat-cell *matCellDef="let event; let i = index">
+      <mat-icon [style.color]="event.color.primary">fiber_manual_record</mat-icon>
+      <label [style.color]="event.color">{{getStatusText(event.color.primary)}}</label>
+    </mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="startsAt">
+    <mat-header-cell *matHeaderCellDef> Starts at </mat-header-cell>
+    <mat-cell *matCellDef="let event; let i = index">
+      <mat-form-field>
+        <input matInput [(ngModel)]="event.start" (ngModelChange)="refresh.next({})" disabled>
+      </mat-form-field>
+    </mat-cell>
+  </ng-container>
+  
+  <ng-container matColumnDef="endsAt">
+    <mat-header-cell *matHeaderCellDef> Ends at </mat-header-cell>
+    <mat-cell *matCellDef="let event; let i = index">
+      <mat-form-field>
+        <input matInput [(ngModel)]="event.end" (ngModelChange)="refresh.next({})" disabled>
+      </mat-form-field>
+    </mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="actions">
+    <mat-header-cell *matHeaderCellDef> Actions </mat-header-cell>
+    <mat-cell *matCellDef="let event; let i = index">
+      <ng-container *ngFor="let action of actions; let j = index">
+        <mat-icon>{{action.label | lowercase}}</mat-icon>
+        <button mat-button [innerHTML]="action.label" (click)="action.onClick({event: event, sourceEvent: $event, rowIndex: i})"></button>
+      </ng-container>
+    </mat-cell>
+  </ng-container>
+
+  <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+  <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+</mat-table>
+
+<ng-template #editDialog>
+  <app-edit-scedule
+    [event]="activeEvent"
+    (save)="saveEventChanges($event)"
+  >
+  </app-edit-scedule>
+</ng-template>
+
+<ng-template #previewDialog>
+  <app-preview-scedule
+    [event]="activeEvent"
+  >
+  </app-preview-scedule>
+</ng-template>

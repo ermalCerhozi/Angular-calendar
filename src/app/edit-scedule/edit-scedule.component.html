@@ -1,0 +1,70 @@
+<h2 mat-dialog-title>Edit Event</h2>
+
+<mat-dialog-content>
+    <form [formGroup]="eventForm">
+        <div style="display: flex; flex-direction: row; gap: 16px; width: 100%;">
+            <div style="flex: 1;">
+        <mat-form-field style="width: 100%;">
+            <mat-label>Title</mat-label>
+            <input matInput placeholder="Title" formControlName="title">
+        </mat-form-field>
+            </div>
+            <!-- <div style="flex: 1;">
+                <mat-form-field style="width: 100%;">
+                    <mat-label>Client</mat-label>
+                    <input matInput placeholder="Client" [(ngModel)]="event.client">
+                </mat-form-field>
+            </div> -->
+        </div>
+        
+        <div style="display: flex; flex-direction: row; gap: 16px;">
+            <mat-form-field>
+                <input matInput [matDatepicker]="startPicker" placeholder="Start Date" formControlName="start">
+                <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+                <mat-datepicker #startPicker></mat-datepicker>
+            </mat-form-field>
+            <igx-time-picker
+                #timePicker
+                [formControlName]="'start'"
+                [mode]="mode"
+                [spinLoop]='false'
+                [inputFormat]="format"
+            >
+                <label igxLabel>Start Time</label>
+            </igx-time-picker>
+        </div>
+
+        <div style="display: flex; flex-direction: row; gap: 16px;">
+            <mat-form-field>
+                <input matInput [matDatepicker]="endPicker" placeholder="End Date" formControlName="end">
+                <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+                <mat-datepicker #endPicker></mat-datepicker>
+            </mat-form-field>
+            <igx-time-picker
+                #timePicker
+                [formControlName]="'end'"
+                [mode]="mode"            
+                [spinLoop]='false'
+                [inputFormat]="format"
+            >
+                <label igxLabel>End Time</label>
+            </igx-time-picker>
+        </div>
+
+        <!-- <div style="display: flex; width: 100%;">
+            <mat-form-field style="width: 100%;">
+                <input matInput placeholder="description" [(ngModel)]="event.Title">
+            </mat-form-field>
+        </div> -->
+
+        <div style="padding: 8px 0;">
+            <mat-slide-toggle formControlName="allDay">All Day: {{eventForm.get('allDay')!.value ? 'Yes' : 'No'}}</mat-slide-toggle>
+        </div>
+    </form>
+
+</mat-dialog-content>
+
+<mat-dialog-actions>
+    <button mat-button mat-dialog-close cdkFocusInitial>Cancel</button>
+    <button mat-button (click)="editEvent()">Save</button>
+</mat-dialog-actions>
